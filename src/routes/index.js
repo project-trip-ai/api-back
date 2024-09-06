@@ -1,5 +1,6 @@
 import express from 'express';
-import {test} from '../controllers/authController';
+import {checkout, webhook} from '../controllers/payementController';
 const router = express.Router();
-router.get('/test', test);
+router.post('/checkout', checkout);
+router.post('/webhook', webhook);
 export default router;
