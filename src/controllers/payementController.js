@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 const stripe = require('stripe')(process.env.SECRET_KEY);
 export async function checkout(req, res) {
+  const {secretCode} = req.body;
   try {
     const session = await stripe.checkout.sessions.create({
       line_items: req.body.lineItems,
@@ -10,6 +11,9 @@ export async function checkout(req, res) {
       payment_method_types: ['card'],
       success_url: process.env.AI_PAGE,
       cancel_url: process.env.CANCEL_URL,
+      metadata: {
+        secretCode: secretCode,
+      },
     });
     return res.status(201).json(session);
   } catch (error) {
@@ -40,6 +44,7 @@ export async function webhook(req, res) {
       var total = session.amount_total / 100;
       var currency = session.currency;
       var session_id = session.id;
+      var secretCode = session.metadata.secretCode;
 
       var sessionWithLineItems = await stripe.checkout.sessions.retrieve(
         session_id,
@@ -61,6 +66,7 @@ export async function webhook(req, res) {
       console.log(`Total: ${total}`);
       console.log(`Currency: ${currency}`);
       console.log('Items: ', items);
+      console.log('Received secretCode from session:', secretCode);
 
       try {
         var paymentResponse = await axios.post(process.env.SEND_MAIL_INVOICE, {
@@ -72,17 +78,18 @@ export async function webhook(req, res) {
           items,
         });
 
-        // var subResponse = await axios.post(process.env.CREATE_SUB, {
-        //   username: customerEmail,
-        //   items,
-        // });
+        var subResponse = await axios.post(process.env.CREATE_SUB, {
+          email: customerEmail,
+          items,
+          secretCode,
+        });
 
         if (paymentResponse.status !== 200) {
           throw new Error('Failed to send info payment');
         }
-        // if (subResponse.status !== 200) {
-        //   throw new Error('Failed to send info subscription');
-        // }
+        if (subResponse.status !== 200) {
+          throw new Error('Failed to send info subscription');
+        }
 
         res.status(200).json({message: 'Info sent'});
       } catch (error) {
