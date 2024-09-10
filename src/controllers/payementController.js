@@ -1,5 +1,6 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
+import {sendEmail} from './emailController';
 dotenv.config();
 const stripe = require('stripe')(process.env.SECRET_KEY);
 export async function checkout(req, res) {
@@ -60,23 +61,20 @@ export async function webhook(req, res) {
           price: item.price.unit_amount,
         };
       });
-
-      console.log(`Customer Email: ${customerEmail}`);
-      console.log(`Customer Name: ${customerName}`);
-      console.log(`Total: ${total}`);
-      console.log(`Currency: ${currency}`);
-      console.log('Items: ', items);
-      console.log('Received secretCode from session:', secretCode);
-
       try {
-        var paymentResponse = await axios.post(process.env.SEND_MAIL_INVOICE, {
-          type: 'invoice',
-          email: customerEmail,
-          lastname: customerName,
-          total,
-          currency,
-          items,
-        });
+        var paymentResponse = await sendEmail(
+          {
+            body: {
+              type: 'invoice',
+              email: customerEmail,
+              lastname: customerName,
+              total,
+              currency,
+              items,
+            },
+          },
+          res,
+        );
 
         var subResponse = await axios.post(process.env.CREATE_SUB, {
           email: customerEmail,
