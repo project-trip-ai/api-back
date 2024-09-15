@@ -10,194 +10,556 @@ const transporter = createTransport({
 });
 
 const sendEmail = async (req, res) => {
-  const {email, lastname, type, code, currency, items, total} = req.body;
-  try {
-    let subject, htmlContent;
+  const {
+    email,
+    lastname,
+    type,
+    code,
+    currency,
+    items,
+    total,
+    subject,
+    message,
+  } = req.body;
 
-    if (type === 'verification') {
-      subject = 'Welcome to Our Application!';
-      htmlContent = `
-        <html>
-          <head>
-            <style>
-              body {
-                font-family: Arial, sans-serif;
-                background-color: #f5f5f5;
-                padding: 20px;
-              }
-              .container {
-                max-width: 600px;
-                margin: 0 auto;
-                background-color: #ffffff;
-                padding: 30px;
-                border-radius: 10px;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-              }
-              h1 {
-                color: #333333;
-              }
-              p {
-                color: #666666;
-                line-height: 1.6;
-              }
-              a {
-                color: #007bff;
-                text-decoration: none;
-                cursor: pointer;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <h1>Welcome to Our Application, ${lastname}!</h1>
-              <p>Thank you for joining us. Your account has been successfully created.</p>
-              <p>We're excited to have you on board. Feel free to explore our application and discover all the features we offer.</p>
-              <p>If you have any questions or need assistance, don't hesitate to contact our support team.</p>
-              <p>Happy exploring!</p>
-            </div>
-          </body>
-        </html>
-      `;
-    } else if (type === 'resetPassword') {
-      subject = 'Reset Your Password';
-      htmlContent = `
-        <html>
-          <head>
-            <style>
-              body {
-                font-family: Arial, sans-serif;
-                background-color: #f5f5f5;
-                padding: 20px;
-              }
-              .container {
-                max-width: 600px;
-                margin: 0 auto;
-                background-color: #ffffff;
-                padding: 30px;
-                border-radius: 10px;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-              }
-              h1 {
-                color: #333333;
-              }
-              p {
-                color: #666666;
-                line-height: 1.6;
-              }
-              a {
-                color: #007bff;
-                text-decoration: none;
-                cursor: pointer;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <h1>Password Reset Request</h1>
-              <p>We received a request to reset your password. If you did not make this request, please ignore this email.</p>
-              <p>To reset your password, please click the following link:</p>
-              <p><a href="${process.env.FRONT}/auth/resetPassword?code=${code}&email=${email}" target="_blank">Reset Password</a></p>
-              <p>This link will expire in 1 hour for security reasons.</p>
-            </div>
-          </body>
-        </html>
-      `;
-    } else if (type === 'invoice') {
-      subject = 'Payment Invoice for Your Purchase';
-      htmlContent = `
+  try {
+    let emailSubject, htmlContent;
+    switch (type) {
+      case 'verification':
+        emailSubject = 'Welcome to Our Application!';
+        htmlContent = `
           <html>
             <head>
               <style>
-                body {
-                  font-family: Arial, sans-serif;
-                  background-color: #f5f5f5;
-                  padding: 20px;
-                }
-                .container {
-                  max-width: 600px;
-                  margin: 0 auto;
-                  background-color: #ffffff;
-                  padding: 30px;
-                  border-radius: 10px;
-                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-                }
-                h1 {
-                  color: #333333;
-                }
-                p {
-                  color: #666666;
-                  line-height: 1.6;
-                }
-                table {
-                  width: 100%;
-                  border-collapse: collapse;
-                }
-                th, td {
-                  border: 1px solid #ddd;
-                  padding: 8px;
-                  text-align: left;
-                }
-                th {
-                  background-color: #f2f2f2;
-                }
-              </style>
+     body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background-color: #6a1b9a;
+        padding: 30px;
+        text-align: center;
+      }
+      .header h1 {
+        color: #ffffff;
+        margin: 0;
+        font-size: 28px;
+        font-weight: bold;
+      }
+      .content {
+        padding: 30px;
+      }
+      h2 {
+        color: #6a1b9a;
+        margin-top: 0;
+      }
+      p {
+        color: #333333;
+        line-height: 1.6;
+      }
+      .button {
+        display: inline-block;
+        background-color: #6a1b9a;
+        color: #ffffff;
+        text-decoration: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+      .footer {
+        background-color: #f0f0f0;
+        padding: 20px;
+        text-align: center;
+        font-size: 14px;
+        color: #666666;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th, td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        color: #6a1b9a;
+      }
+    </style>
             </head>
             <body>
               <div class="container">
-                <h1>Hi ${lastname},</h1>
-                <p>Thank you for your purchase. Below is the invoice details:</p>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Item</th>
-                      <th>Quantity</th>
-                      <th>Unit Price (${currency})</th>
-                      <th>Total (${currency})</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${items
-                      .map(
-                        item => `
-                      <tr>
-                        <td>${item.name}</td>
-                        <td>${item.quantity}</td>
-                        <td>${(parseInt(item.price) / 100).toFixed(2)}</td>
-                      </tr>
-                    `,
-                      )
-                      .join('')}
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                      <td colspan="3"><strong>Total:</strong></td>
-                      <td>${total}</td>
-                    </tr>
-                  </tfoot>
-                </table>
-                <p>Thank you for your payment .</p>
+                <div class="header">
+                  <h1>Wizard Planner</h1>
+                </div>
+                <div class="content">
+                  <h2>Welcome to Wizard Planner, ${lastname}!</h2>
+                  <p>Thank you for joining us. Your account has been successfully created.</p>
+                  <p>We're excited to have you on board. Feel free to explore our application and discover all the magical features we offer.</p>
+                  <p>If you have any questions or need assistance, don't hesitate to contact our support wizards.</p>
+                </div>
+                <div class="footer">
+                  &copy; 2024 Wizard Planner. All rights reserved.
+                </div>
               </div>
             </body>
           </html>
         `;
+        break;
+
+      case 'resetPassword':
+        emailSubject = 'Reset Your Password';
+        htmlContent = `
+          <html>
+            <head>
+               <style>
+     body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background-color: #6a1b9a;
+        padding: 30px;
+        text-align: center;
+      }
+      .header h1 {
+        color: #ffffff;
+        margin: 0;
+        font-size: 28px;
+        font-weight: bold;
+      }
+      .content {
+        padding: 30px;
+      }
+      h2 {
+        color: #6a1b9a;
+        margin-top: 0;
+      }
+      p {
+        color: #333333;
+        line-height: 1.6;
+      }
+      .button {
+        display: inline-block;
+        background-color: #6a1b9a;
+        color: #ffffff;
+        text-decoration: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+      .footer {
+        background-color: #f0f0f0;
+        padding: 20px;
+        text-align: center;
+        font-size: 14px;
+        color: #666666;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th, td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        color: #6a1b9a;
+      }
+    </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>Wizard Planner</h1>
+                </div>
+                <div class="content">
+                  <h2>Password Reset Request</h2>
+                  <p>We received a request to reset your password. If you did not make this request, please ignore this email.</p>
+                  <p>To reset your password, please click the following magical link:</p>
+                  <a href="${process.env.FRONT}/auth/resetPassword?code=${code}&email=${email}" class="button">Reset Password</a>
+                  <p>This enchanted link will expire in 1 hour for security reasons.</p>
+                </div>
+                <div class="footer">
+                  &copy; 2024 Wizard Planner. All rights reserved.
+                </div>
+              </div>
+            </body>
+          </html>
+        `;
+        break;
+
+      case 'invoice':
+        emailSubject = 'Payment Invoice for Your Purchase';
+        htmlContent = `
+          <html>
+            <head>
+               <style>
+     body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background-color: #6a1b9a;
+        padding: 30px;
+        text-align: center;
+      }
+      .header h1 {
+        color: #ffffff;
+        margin: 0;
+        font-size: 28px;
+        font-weight: bold;
+      }
+      .content {
+        padding: 30px;
+      }
+      h2 {
+        color: #6a1b9a;
+        margin-top: 0;
+      }
+      p {
+        color: #333333;
+        line-height: 1.6;
+      }
+      .button {
+        display: inline-block;
+        background-color: #6a1b9a;
+        color: #ffffff;
+        text-decoration: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+      .footer {
+        background-color: #f0f0f0;
+        padding: 20px;
+        text-align: center;
+        font-size: 14px;
+        color: #666666;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th, td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        color: #6a1b9a;
+      }
+    </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>Wizard Planner</h1>
+                </div>
+                <div class="content">
+                  <h2>Payment Invoice for Your Magical Purchase</h2>
+                  <p>Dear ${lastname},</p>
+                  <p>Thank you for your purchase. Here are the magical details of your invoice:</p>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Unit Price (${currency})</th>
+                        <th>Total (${currency})</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${items
+                        .map(
+                          item => `
+                        <tr>
+                          <td>${item.name}</td>
+                          <td>${item.quantity}</td>
+                          <td>${(parseInt(item.price) / 100).toFixed(2)}</td>
+                          <td>${((parseInt(item.price) * item.quantity) / 100).toFixed(2)}</td>
+                        </tr>
+                      `,
+                        )
+                        .join('')}
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td colspan="3"><strong>Total:</strong></td>
+                        <td><strong>${total}</strong></td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                  <p>Thank you for your payment. May your planning be ever magical!</p>
+                </div>
+                <div class="footer">
+                  &copy; 2024 Wizard Planner. All rights reserved.
+                </div>
+              </div>
+            </body>
+          </html>
+        `;
+        break;
+
+      case 'contactConfirmation':
+        emailSubject = 'We received your message';
+        htmlContent = `
+          <html>
+            <head>
+               <style>
+     body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background-color: #6a1b9a;
+        padding: 30px;
+        text-align: center;
+      }
+      .header h1 {
+        color: #ffffff;
+        margin: 0;
+        font-size: 28px;
+        font-weight: bold;
+      }
+      .content {
+        padding: 30px;
+      }
+      h2 {
+        color: #6a1b9a;
+        margin-top: 0;
+      }
+      p {
+        color: #333333;
+        line-height: 1.6;
+      }
+      .button {
+        display: inline-block;
+        background-color: #6a1b9a;
+        color: #ffffff;
+        text-decoration: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+      .footer {
+        background-color: #f0f0f0;
+        padding: 20px;
+        text-align: center;
+        font-size: 14px;
+        color: #666666;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th, td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        color: #6a1b9a;
+      }
+    </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>Wizard Planner</h1>
+                </div>
+                <div class="content">
+                  <h2>Thank you for contacting us!</h2>
+                  <p>Dear ${lastname},</p>
+                  <p>We have received your message regarding "${subject}". Our team will review it and get back to you as soon as possible.</p>
+                  <p>Thank you for your patience and for using Wizard Planner!</p>
+                </div>
+                <div class="footer">
+                  &copy; 2024 Wizard Planner. All rights reserved.
+                </div>
+              </div>
+            </body>
+          </html>
+        `;
+        break;
+
+      case 'newContactNotification':
+        emailSubject = 'New Contact Form Submission';
+        htmlContent = `
+          <html>
+            <head>
+              <style>
+     body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background-color: #6a1b9a;
+        padding: 30px;
+        text-align: center;
+      }
+      .header h1 {
+        color: #ffffff;
+        margin: 0;
+        font-size: 28px;
+        font-weight: bold;
+      }
+      .content {
+        padding: 30px;
+      }
+      h2 {
+        color: #6a1b9a;
+        margin-top: 0;
+      }
+      p {
+        color: #333333;
+        line-height: 1.6;
+      }
+      .button {
+        display: inline-block;
+        background-color: #6a1b9a;
+        color: #ffffff;
+        text-decoration: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+      .footer {
+        background-color: #f0f0f0;
+        padding: 20px;
+        text-align: center;
+        font-size: 14px;
+        color: #666666;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th, td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        color: #6a1b9a;
+      }
+    </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>Wizard Planner</h1>
+                </div>
+                <div class="content">
+                  <h2>New Contact Form Submission</h2>
+                  <p><strong>From:</strong> ${lastname} (${email})</p>
+                  <p><strong>Subject:</strong> ${subject}</p>
+                  <p><strong>Message:</strong></p>
+                  <p>${message}</p>
+                </div>
+                <div class="footer">
+                  &copy; 2024 Wizard Planner. All rights reserved.
+                </div>
+              </div>
+            </body>
+          </html>
+        `;
+
+        const adminMailOptions = {
+          from: email,
+          to: 'kejsiegro@gmail.com',
+          subject: 'New Contact Form Submission',
+          html: htmlContent,
+        };
+
+        await transporter.sendMail(adminMailOptions);
+        break;
+
+      default:
+        throw new Error('Invalid email type');
     }
 
-    const mailOptions = {
+    const userMailOptions = {
       from: 'kejsiegro@gmail.com',
       to: email,
-      subject: subject,
+      subject: emailSubject,
       html: htmlContent,
     };
 
-    transporter.sendMail(mailOptions, (err, info) => {
-      if (err) {
-        console.error('Error sending email:', err);
-        res.status(500).send('Failed to send email');
-      } else {
-        console.log('Email sent:', info.response);
-        res.status(200).send('Email sent successfully');
-      }
-    });
+    await transporter.sendMail(userMailOptions);
+
+    res.status(200).send('Email sent successfully');
   } catch (error) {
     console.error('Error sending email:', error);
     res.status(500).send('Failed to send email');
