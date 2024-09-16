@@ -427,7 +427,7 @@ const sendEmail = async (req, res) => {
                 </div>
                 <div class="content">
                   <h2>Thank you for contacting us!</h2>
-                  <p>Dear ${lastname},</p>
+                  <p>Hello,</p>
                   <p>We have received your message regarding "${subject}". Our team will review it and get back to you as soon as possible.</p>
                   <p>Thank you for your patience and for using Wizard Planner!</p>
                 </div>
@@ -440,7 +440,7 @@ const sendEmail = async (req, res) => {
         `;
         break;
 
-      case 'newContactNotification':
+      case 'newContactNotification': {
         emailSubject = 'New Contact Form Submission';
         htmlContent = `
           <html>
@@ -523,7 +523,7 @@ const sendEmail = async (req, res) => {
                 </div>
                 <div class="content">
                   <h2>New Contact Form Submission</h2>
-                  <p><strong>From:</strong> ${lastname} (${email})</p>
+                  <p><strong>From:</strong> ${email}</p>
                   <p><strong>Subject:</strong> ${subject}</p>
                   <p><strong>Message:</strong></p>
                   <p>${message}</p>
@@ -545,6 +545,7 @@ const sendEmail = async (req, res) => {
 
         await transporter.sendMail(adminMailOptions);
         break;
+      }
 
       default:
         throw new Error('Invalid email type');
