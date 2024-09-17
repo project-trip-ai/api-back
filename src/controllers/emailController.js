@@ -163,16 +163,6 @@ const sendEmail = async (req, res) => {
         color: #333333;
         line-height: 1.6;
       }
-      .button {
-        display: inline-block;
-        background-color: #6a1b9a;
-        color: #ffffff;
-        text-decoration: none;
-        padding: 12px 25px;
-        border-radius: 5px;
-        font-weight: bold;
-        margin-top: 20px;
-      }
       .footer {
         background-color: #f0f0f0;
         padding: 20px;
@@ -206,7 +196,7 @@ const sendEmail = async (req, res) => {
                   <h2>Password Reset Request</h2>
                   <p>We received a request to reset your password. If you did not make this request, please ignore this email.</p>
                   <p>To reset your password, please click the following magical link:</p>
-                  <a href="${process.env.FRONT}/auth/resetPassword?code=${code}&email=${email}" class="button">Reset Password</a>
+                  <a href="${process.env.FRONT}/auth/resetPassword?code=${code}&email=${email}" style="display: inline-block; background-color: #6a1b9a; color: #ffffff; text-decoration: none; padding: 12px 25px; border-radius: 5px; font-weight: bold; margin-top: 20px;">Reset Password</a>
                   <p>This enchanted link will expire in 1 hour for security reasons.</p>
                 </div>
                 <div class="footer">
