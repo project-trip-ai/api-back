@@ -9,7 +9,7 @@ const transporter = createTransport({
   },
 });
 
-const sendEmail = async (req, res) => {
+const sendEmail = async req => {
   const {
     email,
     lastname,
@@ -550,10 +550,10 @@ const sendEmail = async (req, res) => {
 
     await transporter.sendMail(userMailOptions);
 
-    res.status(200).send('Email sent successfully');
+    return {status: 200, message: 'Email sent successfully'};
   } catch (error) {
     console.error('Error sending email:', error);
-    res.status(500).send('Failed to send email');
+    return {status: 500, message: 'Failed to send email'};
   }
 };
 

@@ -4,16 +4,17 @@ import {sendEmail} from './emailController';
 dotenv.config();
 const stripe = require('stripe')(process.env.SECRET_KEY);
 export async function checkout(req, res) {
-  const {secretCode} = req.body;
+  const {secretCode, emailUser} = req.body;
   try {
     const session = await stripe.checkout.sessions.create({
       line_items: req.body.lineItems,
       mode: 'payment',
       payment_method_types: ['card'],
-      success_url: process.env.AI_PAGE,
-      cancel_url: process.env.CANCEL_URL,
+      success_url: process.env.FRONT + '/plan-trip',
+      cancel_url: process.env.FRONT + '/subscription',
       metadata: {
         secretCode: secretCode,
+        emailUser: emailUser,
       },
     });
     return res.status(201).json(session);
@@ -37,7 +38,7 @@ export async function webhook(req, res) {
   }
 
   switch (event.type) {
-    case 'checkout.session.completed':
+    case 'checkout.session.completed': {
       var session = event.data.object;
 
       var customerEmail = session.customer_details.email;
@@ -46,56 +47,56 @@ export async function webhook(req, res) {
       var currency = session.currency;
       var session_id = session.id;
       var secretCode = session.metadata.secretCode;
+      var emailUser = session.metadata.emailUser;
 
-      var sessionWithLineItems = await stripe.checkout.sessions.retrieve(
-        session_id,
-        {
-          expand: ['line_items'],
-        },
-      );
-
-      var items = sessionWithLineItems.line_items.data.map(item => {
-        return {
-          name: item.description,
-          quantity: item.quantity,
-          price: item.price.unit_amount,
-        };
-      });
       try {
-        var paymentResponse = await sendEmail(
+        var sessionWithLineItems = await stripe.checkout.sessions.retrieve(
+          session_id,
           {
-            body: {
-              type: 'invoice',
-              email: customerEmail,
-              lastname: customerName,
-              total,
-              currency,
-              items,
-            },
+            expand: ['line_items'],
           },
-          res,
         );
 
-        var subResponse = await axios.post(process.env.CREATE_SUB, {
-          email: customerEmail,
-          items,
-          secretCode,
+        var items = sessionWithLineItems.line_items.data.map(item => {
+          return {
+            name: item.description,
+            quantity: item.quantity,
+            price: item.price.unit_amount,
+          };
+        });
+
+        const paymentResponse = await sendEmail({
+          body: {
+            type: 'invoice',
+            email: customerEmail,
+            lastname: customerName,
+            total,
+            currency,
+            items,
+          },
         });
 
         if (paymentResponse.status !== 200) {
           throw new Error('Failed to send info payment');
         }
+
+        var subResponse = await axios.post(process.env.CREATE_SUB, {
+          email: emailUser,
+          items,
+          secretCode,
+        });
+
         if (subResponse.status !== 200) {
           throw new Error('Failed to send info subscription');
         }
 
-        res.status(200).json({message: 'Info sent'});
+        return res.status(200).json({message: 'Info sent'});
       } catch (error) {
-        res.status(500).send(`Error: ${error.message}`);
+        return res.status(500).send(`Error: ${error.message}`);
       }
-      break;
+    }
     default:
       console.log(`Unhandled event type ${event.type}`);
-      res.status(400).send(`Unhandled event type ${event.type}`);
+      return res.status(400).send(`Unhandled event type ${event.type}`);
   }
 }
