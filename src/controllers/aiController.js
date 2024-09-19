@@ -27,8 +27,7 @@ const generativeModel = vertexAI.getGenerativeModel({
   ],
   generationConfig: {maxOutputTokens: 600},
 });
-export async function generateActivities(req, res) {
-  const {location} = req.params;
+export async function generateActivities(location) {
   const request = {
     contents: [
       {
@@ -46,21 +45,23 @@ export async function generateActivities(req, res) {
       await generativeModel.generateContentStream(request);
     const aggregatedResponse = await streamingResult.response;
     const responseText = aggregatedResponse.candidates[0].content.parts[0].text;
-    const responseJson = responseText
-      .replace(/```json\n/g, '')
-      .replace(/```/g, '');
-    res.send(responseJson);
+    const responseJson = responseText.replace(/```json\n|\n```/g, '');
+    let jsonData;
+    try {
+      jsonData = JSON.parse(responseJson);
+      return jsonData;
+    } catch (error) {
+      console.error('Error parsing JSON:', error);
+    }
   } catch (error) {
     console.error(error);
-    res.status(500).json({error: 'Failed to fetch from google'});
+    throw new Error('Failed to fetch from google');
   }
 }
 
-export async function searchPlaces(req, res) {
-  const {query} = req.body;
-
+export async function searchPlaces(query) {
   if (!query) {
-    return res.status(400).json({error: 'Query is required'});
+    throw new Error('Query is required');
   }
 
   try {
@@ -85,10 +86,10 @@ export async function searchPlaces(req, res) {
 
     placeWithPhoto.photoData = photoData;
 
-    return res.status(200).json(placeWithPhoto);
+    return placeWithPhoto;
   } catch (error) {
     console.error('Error fetching data from Google Places API:', error);
-    return res.status(500).json({error: 'Internal Server Error'});
+    throw new Error('Internal Server Error');
   }
 }
 
@@ -104,5 +105,31 @@ export async function getPhoto(name) {
   } catch (error) {
     console.error('Error fetching data from Google Phto API:', error);
     throw new Error('Failed to fetch photo data');
+  }
+}
+
+export async function getActivities(req, res) {
+  const {location} = req.params;
+
+  if (!location) {
+    return res.status(400).json({error: 'Location is required'});
+  }
+
+  try {
+    const activities = await generateActivities(location);
+    const enrichedActivities = await Promise.all(
+      activities.map(async activity => {
+        const placeData = await searchPlaces(activity.location);
+        return {
+          ...activity,
+          placeData,
+        };
+      }),
+    );
+
+    res.status(200).json(enrichedActivities);
+  } catch (error) {
+    console.error('Error fetching activities:', error);
+    res.status(500).json({error: 'Internal Server Error'});
   }
 }
