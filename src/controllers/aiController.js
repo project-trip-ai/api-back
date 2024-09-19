@@ -73,32 +73,36 @@ export async function searchPlaces(req, res) {
         headers: {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': apiKey,
-          'X-Goog-FieldMask': '*',
+          'X-Goog-FieldMask':
+            'places.displayName,places.formattedAddress,places.location,places.rating,places.internationalPhoneNumber,places.priceLevel,places.googleMapsUri,places.photos',
         },
       },
     );
+    const namePhoto = response.data.places[0].photos[0].name;
+    const photoData = await getPhoto(namePhoto);
+    const placeWithPhoto = {...response.data.places[0]};
+    delete placeWithPhoto.photos;
 
-    return res.status(200).json(response.data.places[0]);
+    placeWithPhoto.photoData = photoData;
+
+    return res.status(200).json(placeWithPhoto);
   } catch (error) {
     console.error('Error fetching data from Google Places API:', error);
     return res.status(500).json({error: 'Internal Server Error'});
   }
 }
 
-export async function getPhoto(req, res) {
-  const {name} = req.params;
-  console.log('test : ', name);
+export async function getPhoto(name) {
   if (!name) {
-    return res.status(400).json({error: 'Name is required'});
+    throw new Error('Name is required');
   }
 
   try {
-    const url = `https://places.googleapis.com/v1/${encodeURIComponent(name)}/media?key=${apiKey}&max_height_px=100`;
+    const url = `https://places.googleapis.com/v1/${name}/media?key=${apiKey}&maxHeightPx=200&skipHttpRedirect=true`;
     const response = await axios.get(url);
-    console.log('test :', response);
-    return res.status(200).json(response);
+    return response.data.photoUri;
   } catch (error) {
     console.error('Error fetching data from Google Phto API:', error);
-    return res.status(500).json({error: 'Internal Server Error'});
+    throw new Error('Failed to fetch photo data');
   }
 }
