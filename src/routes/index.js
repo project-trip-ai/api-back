@@ -9,6 +9,6 @@ const router = express.Router();
 router.post('/checkout', checkout);
 router.post('/webhook', webhook);
 router.post('/new-email', emailController.sendEmail);
-router.get('/ai/getActivities/:location', getActivities);
 router.get('/ai/generateActivities/:location', enrichItineraryWithPlaceDetails);
+router.get('/ai/getActivities/:location/:type', getActivities);
 export default router;

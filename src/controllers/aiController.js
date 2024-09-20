@@ -27,14 +27,14 @@ const generativeModel = vertexAI.getGenerativeModel({
   ],
   generationConfig: {maxOutputTokens: 3000},
 });
-export async function generateActivities(location) {
+export async function generateActivities(location, type) {
   const request = {
     contents: [
       {
         role: 'user',
         parts: [
           {
-            text: `Generate a JSON with a list of 5 activities for a trip to ${location}. In each activity, you will have with a field location (which is the correct name not the address), description and type of place`,
+            text: `Generate a JSON with a list of 5 activities for a trip to ${location} with the type of activity is ${type}. In each activity, you will have with a field location (which is the correct name not the address), description and type of place`,
           },
         ],
       },
@@ -116,14 +116,14 @@ export async function getPhoto(name) {
 }
 
 export async function getActivities(req, res) {
-  const {location} = req.params;
+  const {location, type} = req.params;
 
-  if (!location) {
-    return res.status(400).json({error: 'Location is required'});
+  if (!location || !type) {
+    return res.status(400).json({error: 'Location and type are required'});
   }
 
   try {
-    const activities = await generateActivities(location);
+    const activities = await generateActivities(location, type);
     const enrichedActivities = await Promise.all(
       activities.map(async activity => {
         const placeData = await searchPlaces(activity.location);
