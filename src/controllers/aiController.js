@@ -25,7 +25,7 @@ const generativeModel = vertexAI.getGenerativeModel({
       threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
     },
   ],
-  generationConfig: {maxOutputTokens: 3000},
+  generationConfig: {maxOutputTokens: 3500},
 });
 export async function generateActivities(location, type) {
   const request = {
@@ -157,7 +157,7 @@ export async function generateActivitiesForItinerary(
             text: `Generate a valid JSON object that contains a list of 5 activities per day (with their location, starting time, and ending time) for a trip to ${location} from ${startDate} to ${endDate}. There will be ${nbPerson} person(s), the group is of type ${groupType} and the diet regime is of type ${dietType}. Each day should be a key (in 'yyyy-mm-dd' format), and the value should be a list of activities. 
 
 Each activity should include the following fields:
-- "name": a string representing the name of the activity's location
+- "name": a string representing the name of the activity's location (a place that has an address)
 - "startTime": the starting time in 24-hour format ('HH:mm')
 - "endTime": the ending time in 24-hour format ('HH:mm')
 
