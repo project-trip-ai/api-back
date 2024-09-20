@@ -1,10 +1,10 @@
-import {
+const {
   HarmBlockThreshold,
   HarmCategory,
   VertexAI,
-} from '@google-cloud/vertexai';
-import dotenv from 'dotenv';
-import axios from 'axios';
+} = require('@google-cloud/vertexai');
+const dotenv = require('dotenv');
+const axios = require('axios');
 dotenv.config();
 const project = process.env.PROJECT;
 const location = process.env.LOCATION;
@@ -27,7 +27,7 @@ const generativeModel = vertexAI.getGenerativeModel({
   ],
   generationConfig: {maxOutputTokens: 3500},
 });
-export async function generateActivities(location, type) {
+async function generateActivities(location, type) {
   const request = {
     contents: [
       {
@@ -59,7 +59,7 @@ export async function generateActivities(location, type) {
   }
 }
 
-export async function searchPlaces(query) {
+async function searchPlaces(query) {
   if (!query) {
     throw new Error('Query is required');
   }
@@ -100,7 +100,7 @@ export async function searchPlaces(query) {
   }
 }
 
-export async function getPhoto(name) {
+async function getPhoto(name) {
   if (!name) {
     throw new Error('Name is required');
   }
@@ -115,7 +115,7 @@ export async function getPhoto(name) {
   }
 }
 
-export async function getActivities(req, res) {
+async function getActivities(req, res) {
   const {location, type} = req.params;
 
   if (!location || !type) {
@@ -140,7 +140,7 @@ export async function getActivities(req, res) {
     res.status(500).json({error: 'Internal Server Error'});
   }
 }
-export async function generateActivitiesForItinerary(
+async function generateActivitiesForItinerary(
   location,
   startDate,
   endDate,
@@ -200,7 +200,7 @@ function formatDateToYYYYMMDD(dateString) {
 }
 
 // Fonction pour enrichir l'itinéraire avec des détails sur les lieux (y compris la photo)
-export async function enrichItineraryWithPlaceDetails(req, res) {
+async function enrichItineraryWithPlaceDetails(req, res) {
   const {location} = req.params;
   const {startDate, endDate, nbPerson, groupType, dietType} = req.query;
 
@@ -310,3 +310,9 @@ export async function enrichItineraryWithPlaceDetails(req, res) {
     return res.status(500).json({error: 'Failed to enrich itinerary'});
   }
 }
+module.exports = {
+  enrichItineraryWithPlaceDetails,
+  generateActivities,
+  generateActivitiesForItinerary,
+  getActivities,
+};

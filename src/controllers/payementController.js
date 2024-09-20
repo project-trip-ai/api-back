@@ -1,9 +1,9 @@
-import axios from 'axios';
-import dotenv from 'dotenv';
-import {sendEmail} from './emailController';
+const dotenv = require('dotenv');
+const axios = require('axios');
+const {sendEmail} = require('./emailController');
 dotenv.config();
 const stripe = require('stripe')(process.env.SECRET_KEY);
-export async function checkout(req, res) {
+async function checkout(req, res) {
   const {secretCode, emailUser} = req.body;
   try {
     const session = await stripe.checkout.sessions.create({
@@ -22,7 +22,7 @@ export async function checkout(req, res) {
     return res.status(500).json(error);
   }
 }
-export async function webhook(req, res) {
+async function webhook(req, res) {
   const sig = req.headers['stripe-signature'];
 
   let event;
@@ -100,3 +100,7 @@ export async function webhook(req, res) {
       return res.status(400).send(`Unhandled event type ${event.type}`);
   }
 }
+module.exports = {
+  checkout,
+  webhook,
+};
