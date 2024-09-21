@@ -8,9 +8,6 @@ const transporter = createTransport({
     user: 'kejsiegro@gmail.com',
     pass: 'xsmtpsib-e6f042551cfd9ace4c333110f4a2402c34406da1317f1853bdc762cffc0a2d34-tS684EFzRqrOXsAQ',
   },
-  tls: {
-    rejectUnauthorized: false,
-  },
   debug: true,
 });
 
