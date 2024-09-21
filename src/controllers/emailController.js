@@ -3,10 +3,15 @@ const {createTransport} = require('nodemailer');
 const transporter = createTransport({
   host: 'smtp-relay.brevo.com',
   port: 587,
+  secure: false,
   auth: {
     user: 'kejsiegro@gmail.com',
-    pass: 'xsmtpsib-e6f042551cfd9ace4c333110f4a2402c34406da1317f1853bdc762cffc0a2d34-IY1sQN24fBUp0TxC',
+    pass: 'xsmtpsib-e6f042551cfd9ace4c333110f4a2402c34406da1317f1853bdc762cffc0a2d34-tS684EFzRqrOXsAQ',
   },
+  tls: {
+    rejectUnauthorized: false,
+  },
+  debug: true,
 });
 
 const sendEmail = async req => {
