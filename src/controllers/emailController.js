@@ -5,11 +5,11 @@ const transporter = createTransport({
   port: 587,
   auth: {
     user: 'kejsiegro@gmail.com',
-    pass: 'xsmtpsib-e6f042551cfd9ace4c333110f4a2402c34406da1317f1853bdc762cffc0a2d34-IY1sQN24fBUp0TxC',
+    pass: 'xsmtpsib-e6f042551cfd9ace4c333110f4a2402c34406da1317f1853bdc762cffc0a2d34-tS684EFzRqrOXsAQ',
   },
 });
 
-const sendEmail = async req => {
+const sendEmail = async (req, res) => {
   const {
     email,
     lastname,
@@ -21,7 +21,6 @@ const sendEmail = async req => {
     subject,
     message,
   } = req.body;
-
   try {
     let emailSubject, htmlContent;
     switch (type) {
@@ -550,9 +549,9 @@ const sendEmail = async req => {
 
     await transporter.sendMail(userMailOptions);
 
-    return {status: 200, message: 'Email sent successfully'};
+    res.status(200).send('Email sent successfully');
   } catch (error) {
-    console.error('Error sending email:', error);
+    res.status(500).send('Failed to send email');
     return {status: 500, message: 'Failed to send email'};
   }
 };
