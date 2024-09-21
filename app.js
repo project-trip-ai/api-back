@@ -16,7 +16,7 @@ app.use(
 const port = process.env.PORT;
 app.use(cors());
 // app.use(bodyParser.json());
-app.use('/api', routes);
+app.use('/back', routes);
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
