@@ -65,6 +65,16 @@ async function webhook(req, res) {
           };
         });
 
+        var subResponse = await axios.post(process.env.API_BDD + '/createSub', {
+          email: emailUser,
+          items,
+          secretCode,
+        });
+
+        if (subResponse.status !== 200) {
+          throw new Error('Failed to send info subscription');
+        }
+
         const paymentResponse = await sendEmail({
           body: {
             type: 'invoice',
@@ -78,16 +88,6 @@ async function webhook(req, res) {
 
         if (paymentResponse.status !== 200) {
           throw new Error('Failed to send info payment');
-        }
-
-        var subResponse = await axios.post(process.env.API_BDD + '/createSub', {
-          email: emailUser,
-          items,
-          secretCode,
-        });
-
-        if (subResponse.status !== 200) {
-          throw new Error('Failed to send info subscription');
         }
 
         return res.status(200).json({message: 'Info sent'});
