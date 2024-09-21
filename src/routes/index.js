@@ -1,10 +1,14 @@
-import express from 'express';
-import {checkout, webhook} from '../controllers/payementController';
-import {getActivities} from '../controllers/aiController';
+const express = require('express');
+const {checkout, webhook} = require('../controllers/payementController');
+const {
+  getActivities,
+  enrichItineraryWithPlaceDetails,
+} = require('../controllers/aiController');
 const emailController = require('../controllers/emailController');
 const router = express.Router();
 router.post('/checkout', checkout);
 router.post('/webhook', webhook);
 router.post('/new-email', emailController.sendEmail);
-router.get('/ai/getActivities/:location', getActivities);
-export default router;
+router.get('/ai/generateActivities/:location', enrichItineraryWithPlaceDetails);
+router.get('/ai/getActivities/:location/:type', getActivities);
+module.exports = router;
