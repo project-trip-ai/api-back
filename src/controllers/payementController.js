@@ -75,7 +75,7 @@ async function webhook(req, res) {
           throw new Error('Failed to send info subscription');
         }
 
-        const paymentResponse = await sendEmail({
+        await sendEmail({
           body: {
             type: 'invoice',
             email: customerEmail,
@@ -85,10 +85,6 @@ async function webhook(req, res) {
             items,
           },
         });
-
-        if (paymentResponse.status !== 200) {
-          throw new Error('Failed to send info payment');
-        }
 
         return res.status(200).json({message: 'Info sent'});
       } catch (error) {
