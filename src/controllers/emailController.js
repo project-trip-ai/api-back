@@ -1,12 +1,14 @@
 const {createTransport} = require('nodemailer');
+const dotenv = require('dotenv');
 
+dotenv.config();
 const transporter = createTransport({
   host: 'smtp-relay.brevo.com',
   port: 587,
   secure: false,
   auth: {
-    user: 'kejsiegro@gmail.com',
-    pass: 'xsmtpsib-e6f042551cfd9ace4c333110f4a2402c34406da1317f1853bdc762cffc0a2d34-tS684EFzRqrOXsAQ',
+    user: process.env.BREVO_SMTP_USER,
+    pass: process.env.BREVO_SMTP_PASS,
   },
   debug: true,
 });
@@ -437,99 +439,98 @@ const sendEmail = async (req, res) => {
           <html>
             <head>
               <style>
-     body {
-        font-family: 'Arial', sans-serif;
-        background-color: #f5f5f5;
-        margin: 0;
-        padding: 20px;
-      }
-      .container {
-        max-width: 600px;
-        margin: 0 auto;
-        background-color: #ffffff;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-      }
-      .header {
-        background-color: #6a1b9a;
-        padding: 30px;
-        text-align: center;
-      }
-      .header h1 {
-        color: #ffffff;
-        margin: 0;
-        font-size: 28px;
-        font-weight: bold;
-      }
-      .content {
-        padding: 30px;
-      }
-      h2 {
-        color: #6a1b9a;
-        margin-top: 0;
-      }
-      p {
-        color: #333333;
-        line-height: 1.6;
-      }
-      .button {
-        display: inline-block;
-        background-color: #6a1b9a;
-        color: #ffffff;
-        text-decoration: none;
-        padding: 12px 25px;
-        border-radius: 5px;
-        font-weight: bold;
-        margin-top: 20px;
-      }
-      .footer {
-        background-color: #f0f0f0;
-        padding: 20px;
-        text-align: center;
-        font-size: 14px;
-        color: #666666;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-      }
-      th, td {
-        border: 1px solid #ddd;
-        padding: 12px;
-        text-align: left;
-      }
-      th {
-        background-color: #f2f2f2;
-        font-weight: bold;
-        color: #6a1b9a;
-      }
-    </style>
-            </head>
-            <body>
-              <div class="container">
-                <div class="header">
-                  <h1>Wizard Planner</h1>
-                </div>
-                <div class="content">
-                  <h2>New Contact Form Submission</h2>
-                  <p><strong>From:</strong> ${email}</p>
-                  <p><strong>Subject:</strong> ${subject}</p>
-                  <p><strong>Message:</strong></p>
-                  <p>${message}</p>
-                </div>
-                <div class="footer">
-                  &copy; 2024 Wizard Planner. All rights reserved.
-                </div>
-              </div>
-            </body>
-          </html>
-        `;
-
+          body {
+              font-family: 'Arial', sans-serif;
+              background-color: #f5f5f5;
+              margin: 0;
+              padding: 20px;
+            }
+            .container {
+              max-width: 600px;
+              margin: 0 auto;
+              background-color: #ffffff;
+              border-radius: 10px;
+              overflow: hidden;
+              box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            }
+            .header {
+              background-color: #6a1b9a;
+              padding: 30px;
+              text-align: center;
+            }
+            .header h1 {
+              color: #ffffff;
+              margin: 0;
+              font-size: 28px;
+              font-weight: bold;
+            }
+            .content {
+              padding: 30px;
+            }
+            h2 {
+              color: #6a1b9a;
+              margin-top: 0;
+            }
+            p {
+              color: #333333;
+              line-height: 1.6;
+            }
+            .button {
+              display: inline-block;
+              background-color: #6a1b9a;
+              color: #ffffff;
+              text-decoration: none;
+              padding: 12px 25px;
+              border-radius: 5px;
+              font-weight: bold;
+              margin-top: 20px;
+            }
+            .footer {
+              background-color: #f0f0f0;
+              padding: 20px;
+              text-align: center;
+              font-size: 14px;
+              color: #666666;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 20px;
+            }
+            th, td {
+              border: 1px solid #ddd;
+              padding: 12px;
+              text-align: left;
+            }
+            th {
+              background-color: #f2f2f2;
+              font-weight: bold;
+              color: #6a1b9a;
+            }
+          </style>
+                  </head>
+                  <body>
+                    <div class="container">
+                      <div class="header">
+                        <h1>Wizard Planner</h1>
+                      </div>
+                      <div class="content">
+                        <h2>New Contact Form Submission</h2>
+                        <p><strong>From:</strong> ${email}</p>
+                        <p><strong>Subject:</strong> ${subject}</p>
+                        <p><strong>Message:</strong></p>
+                        <p>${message}</p>
+                      </div>
+                      <div class="footer">
+                        &copy; 2024 Wizard Planner. All rights reserved.
+                      </div>
+                    </div>
+                  </body>
+                </html>
+              `;
         const adminMailOptions = {
           from: email,
-          to: 'kejsiegro@gmail.com',
+          to: process.env.BREVO_SMTP_USER,
           subject: 'New Contact Form Submission',
           html: htmlContent,
         };
@@ -543,7 +544,7 @@ const sendEmail = async (req, res) => {
     }
 
     const userMailOptions = {
-      from: 'kejsiegro@gmail.com',
+      from: process.env.BREVO_SMTP_USER,
       to: email,
       subject: emailSubject,
       html: htmlContent,
