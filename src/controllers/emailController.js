@@ -554,8 +554,8 @@ const sendEmail = async (req, res) => {
 
     res.status(200).send('Email sent successfully');
   } catch (error) {
+    console.error('Error sending email:', error);
     res.status(500).send('Failed to send email');
-    return {status: 500, message: 'Failed to send email'};
   }
 };
 
